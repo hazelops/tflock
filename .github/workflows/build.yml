@@ -1,0 +1,40 @@
+name: "Build"
+defaults:
+  run:
+    shell: bash
+env:
+
+  TARGET_DOCKER_REGISTRY: hazelops
+  TARGET_DOCKER_IMAGE_NAME: tflock
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set Tag
+        run: |
+          echo "TAG=${GITHUB_SHA::6}" >> $GITHUB_ENV
+
+      - name: Build
+        run: |
+          docker build -t $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:$TAG -t $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:latest .
+
+      - name: Push
+        run: |
+          docker push $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:$TAG
+          docker push $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:latest
