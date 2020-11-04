@@ -3,11 +3,15 @@ defaults:
   run:
     shell: bash
 env:
-
+  SOURCE_DOCKER_REGISTRY: hashicorp
+  SOURCE_DOCKER_IMAGE_NAME: terraform
   TARGET_DOCKER_REGISTRY: hazelops
   TARGET_DOCKER_IMAGE_NAME: tflock
 
 on:
+  schedule:
+    - cron: '0 3 * * *'
+
   push:
     branches:
       - master
@@ -28,13 +32,17 @@ jobs:
 
       - name: Set Tag
         run: |
-          echo "TAG=${GITHUB_SHA::6}" >> $GITHUB_ENV
+          echo "TAG=$(curl -s https://registry.hub.docker.com/v2/repositories/${SOURCE_DOCKER_REGISTRY}/${SOURCE_DOCKER_IMAGE_NAME}/tags | jq -r '.results | sort_by(.id) | reverse | .[0] | .name')" >> $GITHUB_ENV
 
       - name: Build
         run: |
-          docker build -t $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:$TAG -t $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:latest .
+          docker build \
+            -t $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:$TAG \
+            -t $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:${GITHUB_SHA::6} \
+            -t $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:latest .
 
       - name: Push
         run: |
           docker push $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:$TAG
+          docker push $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:${GITHUB_SHA::6}
           docker push $TARGET_DOCKER_REGISTRY/$TARGET_DOCKER_IMAGE_NAME:latest
