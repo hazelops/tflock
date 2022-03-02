@@ -1,9 +1,9 @@
 # tflock
 Lock your terraform state manually.
 
-Until support only S3 backend.
+Only S3 backend is supported for now.
 
-## Install
+## Building
 
 Required: Go 1.17+.
 

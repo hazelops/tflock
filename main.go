@@ -19,7 +19,7 @@ func main() {
 		Name:  "tflock",
 		Usage: "lock terraform state",
 		UsageText: `
-		Lock terraform state in S3 (DynamoBD)
+		# Lock terraform state in S3 (DynamoBD)
 		tflock --lock-id nutcorp-tf-state/env/terraform.tfstate
 		`,
 		Flags: []cli.Flag{
