@@ -18,6 +18,10 @@ func main() {
 	app := &cli.App{
 		Name:  "tflock",
 		Usage: "lock terraform state",
+		UsageText: `
+		Lock terraform state in S3 (DynamoBD)
+		tflock --lock-id nutcorp-tf-state/env/terraform.tfstate
+		`,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "lock-id",
