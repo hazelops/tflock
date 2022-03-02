@@ -10,9 +10,12 @@ import (
 
 var Version = "deployment"
 
-var lockID string
-var region string
-var profile string
+var (
+	lockID  string
+	region  string
+	profile string
+	table   string
+)
 
 func main() {
 	app := &cli.App{
@@ -25,12 +28,12 @@ func main() {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "lock-id",
-				Usage:       "lock id",
+				Usage:       "specify lock id, usually just a path to the state file in your s3 bucket",
 				Required:    true,
 				Destination: &lockID,
 			},
 			&cli.StringFlag{
-				Name:        "aws region",
+				Name:        "aws-region",
 				Usage:       "AWS region",
 				Required:    true,
 				EnvVars:     []string{"TFLOCK_AWS_REGION", "AWS_REGION"},
@@ -44,6 +47,13 @@ func main() {
 				EnvVars:     []string{"TFLOCK_AWS_PROFILE", "AWS_PROFILE"},
 				Destination: &profile,
 				Value:       "default",
+			},
+			&cli.StringFlag{
+				Name:        "dynamodb-table",
+				Usage:       "specify DynamoDB table",
+				Required:    true,
+				Destination: &table,
+				Value:       "tf-state-lock",
 			},
 		},
 		Action: func(c *cli.Context) error {
